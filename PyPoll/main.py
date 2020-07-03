@@ -3,7 +3,7 @@ import csv
 
 # Initialize variables
 total_votes = 0
-candidate_info = []
+candidate_info = {}
 max_votes = 0
 
 # Get the path for the data
@@ -32,23 +32,17 @@ with open(cvspath) as csvfile:
     
     # For each of the remaing rows in the csv file
     for row in csvreader:
+
+        # Increase the vote total and get the candicate name
         total_votes +=1
         candidate = row[2]
 
-        # If this is a new candidate, add to the list.  Otherwise increase vote by 1
+        # If this is an existing candidate increase their vote by 1, otherwise add to the dictionary
         if candidate in candidate_info:
-            index = candidate_info.index(candidate)
-
-            # Get the current number of votes and update date it with one more
-            current_votes = candidate_info[index + 1]
-            candidate_info[index + 1] = current_votes + 1
-
+            candidate_info[candidate] = candidate_info[candidate] + 1
         else:
-
-            # Add the new candidate to the list
-            candidate_info.append(candidate)
-            candidate_info.append(1)
-
+            candidate_info[candidate] = 1
+            
     # Print the total number of votes to the terminal
     print(f"Total Votes: {total_votes}")
     print("-----------------------------------")
@@ -57,24 +51,20 @@ with open(cvspath) as csvfile:
     results.write(f"Total Votes: {total_votes}\n")
     results.write("-----------------------------------\n")
 
-    # Get the number of candidates in the list to determine the winnder
-    nbr_candidates = len(candidate_info)
-
-    # We will go by two, since each candidate has name and votes in the list
-    for n in range (0, nbr_candidates, 2):
+    # Figure out winner and candidate number of votes and percentage by going through the dictionary
+    for candidate, candidate_votes in candidate_info.items():
 
         # Determine the percent of votes and format it
-        percent_votes = "{:.3%}".format(candidate_info[n+1] / total_votes)
-        candidate_votes = candidate_info[n+1]
+        percent_votes = "{:.3%}".format(candidate_votes / total_votes)
 
-        # If the current votes are more than the max, set the new max
+        # If the current candidate votes are more than the max, set the new max
         if candidate_votes > max_votes:
             max_votes = candidate_votes
-            winner = candidate_info[n]
+            winner = candidate
 
         # Print candidate info to the terminal and to output file
-        print(f"{candidate_info[n]}: {percent_votes} ({candidate_votes})")
-        results.write(f"{candidate_info[n]}: {percent_votes} ({candidate_votes})\n")
+        print(f"{candidate}: {percent_votes} ({candidate_votes})")
+        results.write(f"{candidate}: {percent_votes} ({candidate_votes})\n")
     
     # Print the winner to terminal
     print("-----------------------------------")
@@ -88,5 +78,3 @@ with open(cvspath) as csvfile:
 
     # Close the results file
     results.close()
-        
-
